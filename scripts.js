@@ -30,16 +30,40 @@ const transactions = [
 ]
 
 const Transaction = {
-    incomes() {
+    all: transactions,
 
+    add(transaction){
+        Transaction.all.push(transaction);
+
+        App.reload();
+    },
+
+    incomes() {
+        let income = 0;
+
+        Transaction.all.forEach(transaction => {
+            if(transaction.amount > 0){
+                income += transaction.amount;
+            }
+        });
+
+        return income;
     },
 
     expenses() {
+        let expense = 0;
 
+        Transaction.all.forEach(transaction => {
+            if(transaction.amount < 0){
+                expense += transaction.amount;
+            }
+        });
+
+        return expense;
     },
 
     total() {
-
+        return Transaction.incomes() + Transaction.expenses();
     }
 }
 
@@ -68,17 +92,58 @@ const DOM = {
             </td>
         `
         return html;
+    },
+
+    updateBalance() {
+        document.getElementById('incomeDisplay').innerHTML = Utils.formatCurrency(Transaction.incomes()); 
+
+        document.getElementById('expenseDisplay').innerHTML = Utils.formatCurrency(Transaction.expenses());
+        
+        document.getElementById('totalDisplay').innerHTML = Utils.formatCurrency(Transaction.total());
+    },
+
+    clearTransaction() {
+        DOM.transactionsContainer.innerHTML = '';
     }
 }
 
 const Utils = {
     formatCurrency(value) {
         const signal = Number(value) < 0 ? '-' : "";
-        return `${signal} R$ ${value}`;
+        value = String(value).replace(/\D/g, "");
+
+        value = Number(value) / 100;
+
+        value = value.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+        })
+        
+        return signal + value;
     }
 }
 
+const App = {
+    init() {
+        Transaction.all.forEach((transaction) => {
+            DOM.addTransaction(transaction);
 
-transactions.forEach((transaction, index) => {
-    DOM.addTransaction(transaction);
-});
+            DOM.updateBalance();
+        });
+    },
+
+    reload() {
+        DOM.clearTransaction();
+        App.init();
+    }
+}
+
+App.init();
+
+
+Transaction.add({
+    id: 4,
+    description: "teste",
+    amount: 3000,
+    date: '23/01/2021'
+})
