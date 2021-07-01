@@ -27,9 +27,7 @@ const Transaction = {
 
     remove(index) {
         Transaction.all.splice(index, 1);
-
         App.reload();
-        
     },
 
     incomes() {
@@ -112,7 +110,7 @@ const Utils = {
     formatAmount(value) {
         value = Number(value) * 100;
         
-        return value;
+        return Math.round(value);
     },
 
     formatCurrency(value) {
@@ -197,11 +195,9 @@ const App = {
     init() {
         Transaction.all.forEach((transaction, index) => {
             DOM.addTransaction(transaction, index);
-
-            DOM.updateBalance();
-
-            Storage.set(Transaction.all)
         });
+        DOM.updateBalance();
+        Storage.set(Transaction.all)
     },
 
     reload() {
@@ -211,3 +207,4 @@ const App = {
 }
 
 App.init();
+
